@@ -1,5 +1,5 @@
 
-## Peer to Peer Energy Trading Simulator
+## Peer to Peer Energy Trading Simulator (In Progress)
 
 - This simulator follows the openAI gym-like environment style.
 - The simulation dataset is Household energy demand and PV generation from AusGrid.
