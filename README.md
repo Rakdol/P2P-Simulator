@@ -10,7 +10,6 @@
 
 ### Simulator Design
 ----
-- This simualtor is designed using MVC pattern
 - AuctionEnv Contains AuctionController which controls Model and View and interfaces with AuctionEnv
 - Market Operator including Participants get actions to participate auction, processing bidding.
 - AuctionContext can make auction mechanism such as double-sided, uniform auction. 
