@@ -8,7 +8,8 @@
 - Market Operator manages the P2P market process, matching sellers and buyes in order to optimize their profits.
 -------
 
-### Simulator Design
+### Simulator Design (Must be revised, some contents have not been written)
+
 ----
 - AuctionEnv Contains AuctionController which controls Model and View and interfaces with AuctionEnv
 - Market Operator including Participants get actions to participate auction, processing bidding.
