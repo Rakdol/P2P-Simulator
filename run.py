@@ -26,7 +26,7 @@ from src.auction.candidates.optimizer import (
     StackelBergOptimizer,
     Optimizer,
 )
-from src.network.dist_operator import DistOperator
+# from src.network.dist_operator import DistOperator
 
 from src.auction.components.model import AuctionModel, DataContainer
 from src.auction.components.view import AuctionView
@@ -44,7 +44,7 @@ from src.auction.env import AuctionEnv
 def make_env(
     participant: Participant,
     operator: MarketOperator,
-    dist_operator: DistOperator,
+    # dist_operator: DistOperator,
     optimizer: Optimizer,
     scenario: AuctionScenario,
     reward: Reward,
@@ -68,7 +68,7 @@ def make_env(
 
     view = AuctionView()
     reward = reward()
-    dms = dist_operator()
+    # dms = dist_operator()
     contoller = AuctionController(model, view, reward)
 
     # ---- Auction Participants ----
@@ -92,7 +92,7 @@ if __name__ == "__main__":
         # participant=LinearParticipant,
         # operator=LinearOperator,
         # optimizer=LinearOptimizer,
-        dist_operator=DistOperator,
+        # dist_operator=DistOperator,
         participant=ZeroParticipant,
         operator=ZeroOperator,
         optimizer=ZeroOptimizer,
@@ -103,8 +103,18 @@ if __name__ == "__main__":
         strategy=UniformAuction,
         reward=BenefitReward,
     )
-
-    MAX_EPISODE = 1
+    from dqn import DQNAgent, convert_action
+    
+    obs_dim = len(env.customer_list) * env.observation_space[0]
+    action_dim = len(env.customer_list) + 1
+    agent = DQNAgent(state_size=obs_dim, action_size=action_dim, customer_list=env.customer_list)
+    
+    
+    def convert_state(state):
+        return np.array(list(state.values())).reshape(1, -1)
+    
+    MAX_EPISODE = 5
+    batch_size = 64
     scores = []
     rewards = []
     IS_RENDER = True
@@ -114,14 +124,19 @@ if __name__ == "__main__":
         state = env.reset()
         done = False
         while not done:
-            actions = optimizer.get_actions(state=state)
+            # actions = optimizer.get_actions(state=state)
+            actions = agent.act(convert_state(state))
+            
             next_state, reward, done, _ = env.step(action=actions)
-
+            agent.remember(convert_state(state), convert_action(actions), reward, convert_state(next_state), done)
             score += reward
             if IS_RENDER:
                 env.render()
 
             state = next_state
+            
+        if len(agent.memory) > batch_size:
+            agent.replay(batch_size)
 
         scores.append(score)
         avg_score = np.mean(scores)
