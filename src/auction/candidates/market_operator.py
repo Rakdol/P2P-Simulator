@@ -83,7 +83,7 @@ class StackelBergOperator(MarketOperator):
 
     def get_fee_rate(self, maker: Dict[str, float]):
         solver = pyo.SolverFactory("appsi_highs")
-        assert self.SOLVER.available(), f"Solver {solver} is not available."
+        assert solver.available(), f"Solver {solver} is not available."
         model = pyo.ConcreteModel("Fee rate Optimize")
 
         # Define the set of segments
@@ -151,7 +151,7 @@ class StackelBergOperator(MarketOperator):
             # minimize is equal to maximize fee_rate any given constraints.
         )
 
-        K = 0.99  # minimum probability for bid
+        K = 0.95  # minimum probability for bid
         model.c1 = pyo.Constraint(
             expr=sum(
                 [
@@ -185,9 +185,13 @@ class StackelBergOperator(MarketOperator):
         model.c5 = pyo.Constraint(model.segments, rule=c5_rule)
         model.c6 = pyo.Constraint(model.segments, rule=c6_rule)
 
-        solver.solve(model)
+        try:
+            solver.solve(model)
+        except:
+            # No feasible solution
+            return 0.05
 
-        return max(0, round(min(model.fee_rate(), np.max(self.operator.fee_space)), 3))
+        return max(0, round(min(model.fee_rate(), np.max(self.fee_space)), 3))
 
 
 class SingleReinforceOperator(MarketOperator):

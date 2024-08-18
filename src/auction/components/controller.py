@@ -66,5 +66,9 @@ class AuctionController(object):
 
         return transactions
 
+
+
+        
+
     def run_render(self):
         self._view.render(self._render_context)

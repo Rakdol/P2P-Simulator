@@ -1,13 +1,17 @@
 import os
 import sys
+from pathlib import Path
 from typing import Dict, Optional, Tuple, TYPE_CHECKING
 
 import numpy as np
 import pandas as pd
 
 
-sys.path.append(os.getcwd() + "\\P2P-simulator\\src\\")
-from auction.config import (
+PAKAGE_ROOT = Path(os.path.abspath(os.path.dirname(__file__))).parent.parent
+
+sys.path.append(str(PAKAGE_ROOT))
+
+from src.auction.config import (
     CUSTOMER_PATH,
     SMP_PATH,
     BLOCK_PATH,

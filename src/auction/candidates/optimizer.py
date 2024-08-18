@@ -62,9 +62,7 @@ class ZeroOptimizer(Optimizer):
 
     def get_actions(self, state: Dict[str, np.array]) -> Tuple[Dict[str, int], float]:
 
-        bids, fee_rate = self.optimize_auction(
-            state=state, operator=self.operator, participants=self.participants
-        )
+        bids, fee_rate = self.optimize_auction(state=state)
 
         action_dict = {}
         for participant, bid in zip(self.participants, bids):
@@ -289,7 +287,7 @@ class StackelBergOptimizer(Optimizer):
 
     def optimize_auction(self, state: Dict[str, np.array], fee_rate: float):
         model = pyo.ConcreteModel("Participant bid optimization")
-        prob = self.bid_prob_with_fee_rate(fee_rate)
+        prob = self.operator.bid_prob_with_fee_rate(fee_rate)
 
         sellers, buyers = [], []
         for (key, val), participant in zip(state.items(), self.participants):
@@ -302,6 +300,9 @@ class StackelBergOptimizer(Optimizer):
                 if participant.id == key:
                     participant.has_product = False
                 buyers.append(key)
+
+        model.SELLERS = pyo.Set(initialize=sellers)
+        model.BUYERS = pyo.Set(initialize=buyers)
 
         @model.Param(model.BUYERS)
         def upper_bound(model, buyer):
